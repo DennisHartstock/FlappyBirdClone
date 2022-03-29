@@ -19,8 +19,13 @@ public class FlappyBird extends ApplicationAdapter {
     Texture topTube;
     Texture bottomTube;
     int spaceBetweenTubes = 500;
-    float tubeShift;
     Random random;
+    int tubeSpeed = 5;
+    int tubesNumber = 5;
+    float[] tubeX = new float[tubesNumber];
+    float[] tubeShift = new float[tubesNumber];
+    float distanceBetweenTubes;
+
 
     @Override
     public void create() {
@@ -33,6 +38,13 @@ public class FlappyBird extends ApplicationAdapter {
         bird[0] = new Texture("bird_wings_up.png");
         bird[1] = new Texture("bird_wings_down.png");
         flyHeight = Gdx.graphics.getHeight() / 2 - bird[0].getHeight() / 2;
+        distanceBetweenTubes = Gdx.graphics.getWidth() / 2;
+
+        for (int i = 0; i < tubesNumber; i++) {
+            tubeX[i] = Gdx.graphics.getWidth() / 2 - topTube.getWidth() / 2 + i * distanceBetweenTubes;
+            tubeShift[i] = (random.nextFloat() - 0.5f) * (Gdx.graphics.getHeight() - spaceBetweenTubes - 200);
+        }
+
     }
 
     @Override
@@ -46,7 +58,6 @@ public class FlappyBird extends ApplicationAdapter {
 
         if (gameStateFlag == 1) {
             if (Gdx.input.justTouched()) {
-                tubeShift = (random.nextFloat() - 0.5f) * (Gdx.graphics.getHeight() - spaceBetweenTubes - 200);
                 fallingSpeed = -30;
             }
             if (flyHeight > 0 || fallingSpeed < 0) {
@@ -58,10 +69,21 @@ public class FlappyBird extends ApplicationAdapter {
                 gameStateFlag = 1;
             }
         }
-        batch.draw(topTube, Gdx.graphics.getWidth() / 2 - topTube.getWidth() / 2,
-                Gdx.graphics.getHeight() / 2 + spaceBetweenTubes / 2 + tubeShift);
-        batch.draw(bottomTube, Gdx.graphics.getWidth() / 2 - bottomTube.getWidth() / 2,
-                Gdx.graphics.getHeight() / 2 - spaceBetweenTubes / 2 - bottomTube.getHeight() + tubeShift);
+
+        for (int i = 0; i < tubesNumber; i++) {
+
+            if (tubeX[i] < -topTube.getWidth()) {
+                tubeX[i] = tubesNumber * distanceBetweenTubes;
+            } else {
+                tubeX[i] -= tubeSpeed;
+            }
+
+            batch.draw(topTube, tubeX[i],
+                    Gdx.graphics.getHeight() / 2 + spaceBetweenTubes / 2 + tubeShift[i]);
+            batch.draw(bottomTube, tubeX[i],
+                    Gdx.graphics.getHeight() / 2 - spaceBetweenTubes / 2 - bottomTube.getHeight() + tubeShift[i]);
+        }
+
 
         if (birdStateFlag == 0) {
             birdStateFlag = 1;
